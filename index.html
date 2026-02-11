@@ -1,250 +1,1186 @@
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مار زشته - حرکت داره</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1a4d2a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>🐍 مار حرفه‌ای | نسخه طلایی</title>
+    
+    <!-- فونت فارسی و آیکون‌ها -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;user-select:none;-webkit-tap-highlight-color:transparent;}
-        body{background:black;display:flex;justify-content:center;align-items:center;min-height:100dvh;font-family:system-ui;}
-        .game{background:#0a0a0a;width:100%;max-width:500px;padding:10px;border:3px solid red;}
-        .header{display:flex;justify-content:space-between;color:lime;padding:10px;background:#1a1a1a;margin-bottom:10px;}
-        canvas{background:#111;width:100%;aspect-ratio:1;border:2px solid yellow;display:block;}
-        .buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px;}
-        .btn{background:#333;color:white;font-size:35px;padding:20px;border:3px solid cyan;border-radius:0;font-weight:bold;}
-        .btn:active{background:red;transform:scale(0.9);}
-        .big{grid-column:span 2;background:purple;font-size:25px;}
-        .status{color:yellow;text-align:center;padding:10px;background:navy;margin-top:10px;font-size:20px;}
+        /* ============== متغیرهای CSS ============== */
+        :root {
+            --primary-dark: #0a2f1a;
+            --primary: #1e5a2e;
+            --primary-light: #3a8a4a;
+            --accent: #ffb74d;
+            --accent-dark: #ff9800;
+            --danger: #f44336;
+            --danger-dark: #d32f2f;
+            --text-light: #f8f9d7;
+            --text-gold: #ffd966;
+            --shadow: rgba(0, 0, 0, 0.5);
+            --glow: rgba(76, 175, 80, 0.6);
+        }
+
+        /* ============== ریست کامل ============== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+        }
+
+        /* ============== انیمیشن‌ها ============== */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px var(--glow); }
+            50% { box-shadow: 0 0 20px var(--glow); }
+            100% { box-shadow: 0 0 5px var(--glow); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ============== استایل اصلی ============== */
+        body {
+            background: radial-gradient(circle at center, #1a3a1a 0%, #0a1f0a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100dvh;
+            padding: 16px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.05"><path d="M20 20 L30 20 L30 30 L20 30 Z" fill="white"/><path d="M70 70 L80 70 L80 80 L70 80 Z" fill="white"/></svg>');
+            pointer-events: none;
+        }
+
+        .game-wrapper {
+            max-width: 550px;
+            width: 100%;
+            background: linear-gradient(145deg, #1f4a2a, #15331e);
+            border-radius: 48px 48px 32px 32px;
+            padding: 24px 20px;
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.6), inset 0 0 0 2px #4f9a5e, inset 0 0 15px #a5d6a5;
+            border: 1px solid #6f9e7a;
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        /* ============== هدر و امتیازات ============== */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 0 8px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #0f2a1a;
+            padding: 8px 20px;
+            border-radius: 50px;
+            box-shadow: inset 0 -4px 0 #2a4a2a, inset 0 2px 10px rgba(0,0,0,0.7);
+            border: 1px solid #6a9e7a;
+        }
+
+        .logo span {
+            font-size: 28px;
+            animation: pulse 2s infinite;
+        }
+
+        .logo h1 {
+            color: var(--text-gold);
+            font-size: 22px;
+            font-weight: 900;
+            text-shadow: 2px 2px 0 #1e3a1e;
+            letter-spacing: 2px;
+        }
+
+        .score-container {
+            display: flex;
+            gap: 12px;
+        }
+
+        .score-card, .highscore-card {
+            background: #0f2a1a;
+            padding: 10px 20px;
+            border-radius: 40px;
+            box-shadow: inset 0 -4px 0 #2a4a2a, inset 0 2px 10px rgba(0,0,0,0.7);
+            border: 1px solid #6a9e7a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-gold);
+            font-weight: 700;
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .score-card:hover, .highscore-card:hover {
+            transform: translateY(-2px);
+            box-shadow: inset 0 -6px 0 #2a4a2a, inset 0 2px 15px rgba(0,0,0,0.8);
+        }
+
+        /* ============== کانواس بازی ============== */
+        .canvas-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(145deg, #0a1e12, #0c2a14);
+            border-radius: 28px;
+            padding: 15px;
+            box-shadow: inset 0 0 0 3px #2b5e2b, inset 0 0 30px #000000, 0 15px 25px black;
+            margin-bottom: 20px;
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            background: #0d2818;
+            background-image: 
+                linear-gradient(rgba(30, 90, 46, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30, 90, 46, 0.2) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border-radius: 18px;
+            border: 3px solid #4caf50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 30, 10, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 25px 45px;
+            border-radius: 60px;
+            border: 3px solid #ffd966;
+            box-shadow: 0 0 30px rgba(255, 217, 102, 0.5);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            animation: glow 2s infinite;
+        }
+
+        .overlay span {
+            font-size: 50px;
+        }
+
+        /* ============== وضعیت بازی ============== */
+        .game-status {
+            background: linear-gradient(145deg, #1c3c1c, #143014);
+            padding: 16px 24px;
+            border-radius: 50px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #8bc34a;
+            box-shadow: inset 0 -3px 0 #2a4a2a, inset 0 2px 10px black;
+            color: var(--text-gold);
+        }
+
+        .status-message {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-icon {
+            width: 36px;
+            height: 36px;
+            background: #ffb74d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .difficulty-badge {
+            background: #0f2a1a;
+            padding: 8px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            border: 1px solid #ffb74d;
+        }
+
+        /* ============== کنترل‌های لمسی ============== */
+        .touch-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .dpad-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .dpad-row {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .control-btn {
+            background: linear-gradient(145deg, #3a6b47, #2a4a2a);
+            border: none;
+            border-bottom: 8px solid #1e3a1e;
+            color: white;
+            font-size: 40px;
+            width: 95px;
+            height: 95px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 30px;
+            box-shadow: 0 10px 0 #0a1a0a, 0 15px 25px rgba(0,0,0,0.5);
+            transition: all 0.06s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            cursor: pointer;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 80%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .control-btn:active {
+            transform: translateY(10px);
+            box-shadow: 0 2px 0 #0a1a0a, 0 15px 25px black;
+            border-bottom-width: 4px;
+            background: linear-gradient(145deg, #4c8c5c, #3a6b47);
+        }
+
+        .control-btn:active::after {
+            opacity: 1;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            background: linear-gradient(145deg, #b9793b, #8e5a2a);
+            border-bottom-color: #5a3a1a;
+            font-size: 28px;
+            width: 180px;
+            height: 80px;
+            border-radius: 50px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(145deg, #9e3c3c, #7a2e2e);
+            border-bottom-color: #4a1e1e;
+        }
+
+        /* ============== تنظیمات و اطلاعات ============== */
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+            padding: 12px 20px;
+            background: #0f2a1a80;
+            border-radius: 40px;
+            backdrop-filter: blur(5px);
+            border: 1px solid #5a8a5a;
+            color: #ffd966;
+            font-size: 15px;
+        }
+
+        .speed-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speed-bar {
+            width: 80px;
+            height: 10px;
+            background: #2a4a2a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .speed-fill {
+            height: 100%;
+            width: 70%;
+            background: linear-gradient(90deg, #ffb74d, #ff9800);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* ============== مدال و افتخارات ============== */
+        .achievement-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(145deg, #ffb74d, #ff9800);
+            color: #0a1f0a;
+            padding: 16px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 18px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.5);
+            border: 2px solid white;
+            z-index: 1000;
+            animation: slideIn 0.5s ease;
+        }
+
+        /* ============== رسپانسیو ============== */
+        @media (max-width: 450px) {
+            .control-btn { width: 80px; height: 80px; font-size: 35px; }
+            .action-btn { width: 150px; height: 70px; }
+            .logo h1 { font-size: 18px; }
+            .score-card, .highscore-card { padding: 8px 15px; font-size: 18px; }
+        }
+
+        @media (max-width: 380px) {
+            .control-btn { width: 70px; height: 70px; font-size: 30px; }
+            .action-btn { width: 130px; height: 65px; font-size: 24px; }
+        }
+
+        /* ============== کلاس‌های کمکی ============== */
+        .hidden { display: none; }
+        .shake-animation { animation: shake 0.5s ease; }
+        .glow-animation { animation: glow 2s infinite; }
     </style>
 </head>
 <body>
-<div class="game">
-    <div class="header">
-        <span>🍎 <span id="score">0</span></span>
-        <span>🏆 <span id="highScore">0</span></span>
+    <!-- ============== تایمر دستاورد ============== -->
+    <div id="achievementToast" class="achievement-toast">
+        <span>🏆</span>
+        <span id="achievementText">امتیاز جدید!</span>
     </div>
-    
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
-    
-    <div id="status" class="status">👉 دکمه شروع رو بزن</div>
-    
-    <div class="buttons">
-        <button class="btn" id="up">⬆️</button>
-        <button class="btn" id="left">⬅️</button>
-        <button class="btn" id="down">⬇️</button>
-        <button class="btn" id="right">➡️</button>
-        <button class="btn" id="pause">⏸️</button>
-        <button class="btn big" id="restart">🔄 شروع</button>
-    </div>
-</div>
 
-<script>
-    (function(){
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        let scoreEl = document.getElementById('score');
-        let highScoreEl = document.getElementById('highScore');
-        let statusEl = document.getElementById('status');
+    <!-- ============== کانتینر اصلی بازی ============== -->
+    <div class="game-wrapper">
         
-        let grid = 20;
-        let tile = canvas.width / grid;
-        
-        let snake = [{x:10, y:10}];
-        let dir = {x:0, y:0};
-        let food = {x:15, y:15};
-        let score = 0;
-        let high = localStorage.getItem('snake') || 0;
-        highScoreEl.innerText = high;
-        
-        let gameLoop = null;
-        let running = false;
-        let paused = false;
-        let speed = 120;
-        
-        function makeFood(){
-            let ok = false;
-            while(!ok){
-                ok = true;
-                food = {
-                    x: Math.floor(Math.random() * grid),
-                    y: Math.floor(Math.random() * grid)
+        <!-- ============== هدر ============== -->
+        <div class="game-header">
+            <div class="logo">
+                <span>🐍</span>
+                <h1>مار طلایی</h1>
+            </div>
+            <div class="score-container">
+                <div class="score-card">
+                    <span>🍎</span>
+                    <span id="currentScore">0</span>
+                </div>
+                <div class="highscore-card">
+                    <span>👑</span>
+                    <span id="highScore">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============== کانتینر کانواس با اوورلی ============== -->
+        <div class="canvas-container">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div id="gameOverlay" class="overlay">
+                <span>🎮</span>
+                <span id="overlayText">بازی تمام شد</span>
+            </div>
+        </div>
+
+        <!-- ============== وضعیت بازی ============== -->
+        <div class="game-status">
+            <div class="status-message">
+                <span class="status-icon" id="statusIcon">▶️</span>
+                <span id="statusMessage">آماده شروع</span>
+            </div>
+            <div class="difficulty-badge">
+                <span>⚡</span>
+                <span id="difficultyLevel">عادی</span>
+                <span id="speedValue">120</span>
+                <span>ms</span>
+            </div>
+        </div>
+
+        <!-- ============== کنترل‌های لمسی ============== -->
+        <div class="touch-controls">
+            <!-- D-Pad -->
+            <div class="dpad-container">
+                <div class="dpad-row">
+                    <button class="control-btn" id="btnUp" aria-label="بالا">
+                        <span>⬆️</span>
+                    </button>
+                </div>
+                <div class="dpad-row">
+                    <button class="control-btn" id="btnLeft" aria-label="چپ">
+                        <span>⬅️</span>
+                    </button>
+                    <button class="control-btn" id="btnDown" aria-label="پایین">
+                        <span>⬇️</span>
+                    </button>
+                    <button class="control-btn" id="btnRight" aria-label="راست">
+                        <span>➡️</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- دکمه‌های اکشن -->
+            <div class="action-buttons">
+                <button class="control-btn action-btn" id="btnPause">
+                    <span>⏸️</span>
+                    <span>توقف</span>
+                </button>
+                <button class="control-btn action-btn restart-btn" id="btnRestart">
+                    <span>🔄</span>
+                    <span>شروع</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ============== فوتر و اطلاعات ============== -->
+        <div class="game-footer">
+            <div class="speed-indicator">
+                <span>🐍</span>
+                <span>سرعت:</span>
+                <div class="speed-bar">
+                    <div id="speedFill" class="speed-fill" style="width: 40%;"></div>
+                </div>
+            </div>
+            <div>
+                <span>📱 نسخه ۲.۰ طلایی</span>
+            </div>
+            <div>
+                <span id="foodCount">🍎 ۰</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============== کلاس مدیریت بازی مار ==============
+        class SnakeGame {
+            // ============== مقادیر ثابت ==============
+            static GRID_SIZE = 20;
+            static TILE_SIZE = 20;
+            static INITIAL_SPEED = 120;
+            static MIN_SPEED = 50;
+            static SPEED_DECREMENT = 8;
+            static SCORE_PER_FOOD = 10;
+            static HIGH_SCORE_KEY = 'goldenSnakeHighScore';
+
+            // ============== سازنده کلاس ==============
+            constructor(canvasId) {
+                // المان‌های DOM
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.scoreElement = document.getElementById('currentScore');
+                this.highScoreElement = document.getElementById('highScore');
+                this.statusMessage = document.getElementById('statusMessage');
+                this.statusIcon = document.getElementById('statusIcon');
+                this.overlay = document.getElementById('gameOverlay');
+                this.overlayText = document.getElementById('overlayText');
+                this.speedFill = document.getElementById('speedFill');
+                this.difficultyLevel = document.getElementById('difficultyLevel');
+                this.speedValue = document.getElementById('speedValue');
+                this.foodCount = document.getElementById('foodCount');
+                this.achievementToast = document.getElementById('achievementToast');
+                this.achievementText = document.getElementById('achievementText');
+
+                // ============== وضعیت بازی ==============
+                this.snake = [{ x: 10, y: 10 }];
+                this.direction = { x: 0, y: 0 };
+                this.nextDirection = { x: 0, y: 0 };
+                this.food = { x: 15, y: 15 };
+                this.score = 0;
+                this.highScore = this.loadHighScore();
+                this.gameRunning = false;
+                this.gamePaused = false;
+                this.gameLoop = null;
+                this.speed = SnakeGame.INITIAL_SPEED;
+                this.foodsEaten = 0;
+                
+                // ============== رنگ‌بندی ==============
+                this.colors = {
+                    snakeHead: '#a5d6a5',
+                    snakeBody: '#66bb6a',
+                    snakeHeadGradient: '#c8e6c9',
+                    food: '#ff5252',
+                    foodLeaf: '#69f0ae',
+                    grid: '#2e7d32',
+                    background: '#0d2818'
                 };
-                for(let s of snake){
-                    if(s.x === food.x && s.y === food.y){
-                        ok = false;
-                        break;
+
+                // ============== صداها (آپشنال) ==============
+                this.sounds = {
+                    eat: null,
+                    gameOver: null,
+                    move: null
+                };
+
+                // ============== آمار پیشرفته ==============
+                this.stats = {
+                    gamesPlayed: 0,
+                    totalFoodEaten: 0,
+                    maxLength: 1,
+                    playTime: 0,
+                    startTime: null
+                };
+
+                // مقداردهی اولیه
+                this.loadStats();
+                this.highScoreElement.innerText = this.highScore;
+                this.generateFood();
+                this.draw();
+                this.setupEventListeners();
+            }
+
+            // ============== مدیریت localStorage ==============
+            loadHighScore() {
+                try {
+                    return parseInt(localStorage.getItem(SnakeGame.HIGH_SCORE_KEY)) || 0;
+                } catch(e) {
+                    console.warn('خطا در خواندن localStorage');
+                    return 0;
+                }
+            }
+
+            saveHighScore() {
+                try {
+                    localStorage.setItem(SnakeGame.HIGH_SCORE_KEY, this.highScore);
+                } catch(e) {
+                    console.warn('خطا در ذخیره localStorage');
+                }
+            }
+
+            loadStats() {
+                try {
+                    const savedStats = localStorage.getItem('snakeStats');
+                    if(savedStats) {
+                        this.stats = { ...this.stats, ...JSON.parse(savedStats) };
+                    }
+                } catch(e) {}
+            }
+
+            saveStats() {
+                try {
+                    localStorage.setItem('snakeStats', JSON.stringify(this.stats));
+                } catch(e) {}
+            }
+
+            // ============== تولید غذا با الگوریتم هوشمند ==============
+            generateFood() {
+                const maxAttempts = 1000;
+                let attempts = 0;
+                let found = false;
+
+                // استراتژی: سعی کن غذا دور از سر مار باشه
+                while (!found && attempts < maxAttempts) {
+                    attempts++;
+                    
+                    // ۷۰٪ مواقع غذا دور از سر مار قرار می‌گیره
+                    let x, y;
+                    if (Math.random() < 0.7 && this.snake.length > 0) {
+                        const head = this.snake[0];
+                        x = (head.x + Math.floor(Math.random() * 10 - 5) + SnakeGame.GRID_SIZE) % SnakeGame.GRID_SIZE;
+                        y = (head.y + Math.floor(Math.random() * 10 - 5) + SnakeGame.GRID_SIZE) % SnakeGame.GRID_SIZE;
+                    } else {
+                        x = Math.floor(Math.random() * SnakeGame.GRID_SIZE);
+                        y = Math.floor(Math.random() * SnakeGame.GRID_SIZE);
+                    }
+
+                    // بررسی نبودن غذا روی مار
+                    found = !this.snake.some(segment => segment.x === x && segment.y === y);
+                    
+                    if (found) {
+                        this.food = { x, y };
                     }
                 }
-            }
-        }
-        makeFood();
-        
-        function draw(){
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-            
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 0.5;
-            for(let i=0;i<=grid;i++){
-                ctx.beginPath();
-                ctx.moveTo(i*tile,0);
-                ctx.lineTo(i*tile,canvas.height);
-                ctx.stroke();
-                ctx.moveTo(0,i*tile);
-                ctx.lineTo(canvas.width,i*tile);
-                ctx.stroke();
-            }
-            
-            for(let i=0;i<snake.length;i++){
-                ctx.fillStyle = i===0 ? '#0f0' : '#0a0';
-                ctx.fillRect(snake[i].x*tile+1, snake[i].y*tile+1, tile-2, tile-2);
-                if(i===0){
-                    ctx.fillStyle = '#fff';
-                    ctx.fillRect(snake[i].x*tile+3, snake[i].y*tile+3, 3, 3);
-                    ctx.fillRect(snake[i].x*tile+12, snake[i].y*tile+3, 3, 3);
-                    ctx.fillStyle = '#000';
-                    ctx.fillRect(snake[i].x*tile+4, snake[i].y*tile+4, 2, 2);
-                    ctx.fillRect(snake[i].x*tile+13, snake[i].y*tile+4, 2, 2);
+
+                // اگه پیداش نکرد، یه جای خالی تصادفی پیدا کن
+                if (!found) {
+                    for (let y = 0; y < SnakeGame.GRID_SIZE; y++) {
+                        for (let x = 0; x < SnakeGame.GRID_SIZE; x++) {
+                            if (!this.snake.some(s => s.x === x && s.y === y)) {
+                                this.food = { x, y };
+                                return;
+                            }
+                        }
+                    }
+                    // اگه کل صفحه پره، باخت
+                    this.gameOver();
                 }
             }
-            
-            ctx.fillStyle = '#f00';
-            ctx.beginPath();
-            ctx.arc(food.x*tile+tile/2, food.y*tile+tile/2, tile/2-2, 0, 2*Math.PI);
-            ctx.fill();
-            ctx.fillStyle = '#0f0';
-            ctx.beginPath();
-            ctx.arc(food.x*tile+5, food.y*tile+5, 3, 0, 2*Math.PI);
-            ctx.fill();
-        }
-        draw();
-        
-        function move(){
-            if(!running || paused) return;
-            if(dir.x === 0 && dir.y === 0) return;
-            
-            let head = {
-                x: snake[0].x + dir.x,
-                y: snake[0].y + dir.y
-            };
-            
-            if(head.x < 0 || head.x >= grid || head.y < 0 || head.y >= grid){
-                gameOver();
-                return;
+
+            // ============== سیستم رسم پیشرفته ==============
+            draw() {
+                // پاک کردن صفحه
+                this.ctx.fillStyle = this.colors.background;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // رسم گرید با سایه
+                this.drawGrid();
+
+                // رسم غذا
+                this.drawFood();
+
+                // رسم مار
+                this.drawSnake();
+
+                // رسم افکت‌های ویژه
+                this.drawSpecialEffects();
             }
-            
-            for(let s of snake){
-                if(head.x === s.x && head.y === s.y){
-                    gameOver();
+
+            drawGrid() {
+                this.ctx.strokeStyle = '#2e7d3233';
+                this.ctx.lineWidth = 0.6;
+                
+                for (let i = 0; i <= SnakeGame.GRID_SIZE; i++) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(i * SnakeGame.TILE_SIZE, 0);
+                    this.ctx.lineTo(i * SnakeGame.TILE_SIZE, this.canvas.height);
+                    this.ctx.strokeStyle = i % 5 === 0 ? '#4caf5055' : '#2e7d3233';
+                    this.ctx.stroke();
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(0, i * SnakeGame.TILE_SIZE);
+                    this.ctx.lineTo(this.canvas.width, i * SnakeGame.TILE_SIZE);
+                    this.ctx.stroke();
+                }
+            }
+
+            drawSnake() {
+                // سایه
+                this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                this.ctx.shadowBlur = 5;
+                this.ctx.shadowOffsetX = 2;
+                this.ctx.shadowOffsetY = 2;
+
+                // رسم بدن
+                for (let i = this.snake.length - 1; i >= 0; i--) {
+                    const segment = this.snake[i];
+                    const isHead = i === 0;
+                    const x = segment.x * SnakeGame.TILE_SIZE;
+                    const y = segment.y * SnakeGame.TILE_SIZE;
+                    
+                    // گرادیانت برای بدن
+                    const gradient = this.ctx.createRadialGradient(
+                        x + 5, y + 5, 2,
+                        x + 10, y + 10, 15
+                    );
+                    
+                    if (isHead) {
+                        gradient.addColorStop(0, '#c8e6c9');
+                        gradient.addColorStop(1, '#81c784');
+                    } else {
+                        const percent = 1 - (i / this.snake.length);
+                        gradient.addColorStop(0, `rgba(102, 187, 106, ${percent})`);
+                        gradient.addColorStop(1, '#388e3c');
+                    }
+                    
+                    this.ctx.fillStyle = gradient;
+                    
+                    // بدنه با گوشه‌های گرد
+                    const padding = isHead ? 2 : 3;
+                    this.ctx.fillRect(
+                        x + padding/2,
+                        y + padding/2,
+                        SnakeGame.TILE_SIZE - padding,
+                        SnakeGame.TILE_SIZE - padding
+                    );
+
+                    // چشم برای سر
+                    if (isHead) {
+                        this.drawSnakeEyes(x, y);
+                    }
+                    
+                    // الگو برای بدن
+                    if (!isHead && i % 3 === 0) {
+                        this.ctx.fillStyle = '#2e7d3240';
+                        this.ctx.fillRect(
+                            x + 5,
+                            y + 5,
+                            2, 2
+                        );
+                    }
+                }
+
+                // ریست سایه
+                this.ctx.shadowBlur = 0;
+                this.ctx.shadowOffsetX = 0;
+                this.ctx.shadowOffsetY = 0;
+            }
+
+            drawSnakeEyes(x, y) {
+                // سفیدی چشم
+                this.ctx.fillStyle = 'white';
+                this.ctx.shadowBlur = 2;
+                
+                let eyeXOffset1, eyeXOffset2, eyeYOffset;
+                
+                // جهت چشم بر اساس جهت حرکت
+                if (this.direction.x === 1) { // راست
+                    eyeXOffset1 = 12; eyeXOffset2 = 12; eyeYOffset = 5;
+                } else if (this.direction.x === -1) { // چپ
+                    eyeXOffset1 = 3; eyeXOffset2 = 3; eyeYOffset = 5;
+                } else if (this.direction.y === -1) { // بالا
+                    eyeXOffset1 = 5; eyeXOffset2 = 12; eyeYOffset = 3;
+                } else if (this.direction.y === 1) { // پایین
+                    eyeXOffset1 = 5; eyeXOffset2 = 12; eyeYOffset = 12;
+                } else { // ثابت
+                    eyeXOffset1 = 5; eyeXOffset2 = 12; eyeYOffset = 5;
+                }
+
+                this.ctx.beginPath();
+                this.ctx.arc(x + eyeXOffset1, y + eyeYOffset, 2.5, 0, Math.PI * 2);
+                this.ctx.arc(x + eyeXOffset2, y + eyeYOffset, 2.5, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // مردمک
+                this.ctx.fillStyle = '#0a0a0a';
+                this.ctx.shadowBlur = 0;
+                this.ctx.beginPath();
+                this.ctx.arc(x + eyeXOffset1 + (this.direction.x === 1 ? 1 : 0), y + eyeYOffset + (this.direction.y === 1 ? 1 : 0), 1.2, 0, Math.PI * 2);
+                this.ctx.arc(x + eyeXOffset2 + (this.direction.x === 1 ? 1 : 0), y + eyeYOffset + (this.direction.y === 1 ? 1 : 0), 1.2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+
+            drawFood() {
+                const x = this.food.x * SnakeGame.TILE_SIZE;
+                const y = this.food.y * SnakeGame.TILE_SIZE;
+                const centerX = x + SnakeGame.TILE_SIZE / 2;
+                const centerY = y + SnakeGame.TILE_SIZE / 2;
+
+                // سایه
+                this.ctx.shadowColor = '#ff000080';
+                this.ctx.shadowBlur = 12;
+                
+                // سیب
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY, SnakeGame.TILE_SIZE / 2 - 2, 0, Math.PI * 2);
+                
+                // گرادیانت سیب
+                const gradient = this.ctx.createRadialGradient(
+                    centerX - 2, centerY - 2, 2,
+                    centerX, centerY, SnakeGame.TILE_SIZE / 2
+                );
+                gradient.addColorStop(0, '#ff7043');
+                gradient.addColorStop(1, '#d32f2f');
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.fill();
+
+                // برگ
+                this.ctx.shadowBlur = 6;
+                this.ctx.fillStyle = '#66bb6a';
+                this.ctx.beginPath();
+                this.ctx.ellipse(
+                    centerX + 4,
+                    centerY - 6,
+                    3, 5, 0.5, 0, Math.PI * 2
+                );
+                this.ctx.fill();
+
+                // برق
+                this.ctx.shadowBlur = 4;
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                this.ctx.beginPath();
+                this.ctx.arc(centerX - 2, centerY - 2, 1.5, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                // ریست سایه
+                this.ctx.shadowBlur = 0;
+            }
+
+            drawSpecialEffects() {
+                // افکت برای سر مار
+                if (this.gameRunning && !this.gamePaused) {
+                    const head = this.snake[0];
+                    const x = head.x * SnakeGame.TILE_SIZE;
+                    const y = head.y * SnakeGame.TILE_SIZE;
+                    
+                    this.ctx.shadowColor = '#4caf5080';
+                    this.ctx.shadowBlur = 15;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.arc(
+                        x + SnakeGame.TILE_SIZE/2,
+                        y + SnakeGame.TILE_SIZE/2,
+                        SnakeGame.TILE_SIZE/2 + 2,
+                        0, Math.PI * 2
+                    );
+                    this.ctx.fillStyle = 'rgba(76, 175, 80, 0.1)';
+                    this.ctx.fill();
+                    
+                    this.ctx.shadowBlur = 0;
+                }
+            }
+
+            // ============== منطق اصلی بازی ==============
+            update() {
+                if (!this.gameRunning || this.gamePaused) return;
+
+                // اعمال جهت جدید
+                if (this.nextDirection.x !== 0 || this.nextDirection.y !== 0) {
+                    if (!(this.direction.x === -this.nextDirection.x && this.direction.y === -this.nextDirection.y)) {
+                        this.direction = { ...this.nextDirection };
+                    }
+                }
+
+                // اگه جهت صفره، حرکت نکن
+                if (this.direction.x === 0 && this.direction.y === 0) return;
+
+                const head = {
+                    x: this.snake[0].x + this.direction.x,
+                    y: this.snake[0].y + this.direction.y
+                };
+
+                // برخورد با دیوار
+                if (head.x < 0 || head.x >= SnakeGame.GRID_SIZE || head.y < 0 || head.y >= SnakeGame.GRID_SIZE) {
+                    this.gameOver();
                     return;
                 }
-            }
-            
-            snake.unshift(head);
-            
-            if(head.x === food.x && head.y === food.y){
-                score += 10;
-                scoreEl.innerText = score;
-                makeFood();
-                if(score > high){
-                    high = score;
-                    localStorage.setItem('snake', high);
-                    highScoreEl.innerText = high;
+
+                // برخورد با خود
+                if (this.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                    this.gameOver();
+                    return;
                 }
-                if(score % 30 === 0 && speed > 50){
-                    speed -= 10;
-                    resetInterval();
+
+                // حرکت مار
+                this.snake.unshift(head);
+
+                // خوردن غذا
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.handleEatFood();
+                } else {
+                    this.snake.pop();
                 }
-            } else {
-                snake.pop();
+
+                // آپدیت UI
+                this.draw();
+                this.updateUI();
             }
+
+            handleEatFood() {
+                // افزایش امتیاز
+                this.score += SnakeGame.SCORE_PER_FOOD;
+                this.foodsEaten++;
+                this.stats.totalFoodEaten++;
+                this.stats.maxLength = Math.max(this.stats.maxLength, this.snake.length);
+                
+                // به‌روزرسانی نمایش
+                this.scoreElement.innerText = this.score;
+                this.foodCount.innerText = `🍎 ${this.foodsEaten}`;
+                
+                // رکورد جدید
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    this.saveHighScore();
+                    this.highScoreElement.innerText = this.highScore;
+                    this.showAchievement('🏆 رکورد جدید!', this.highScore);
+                }
+
+                // تولید غذای جدید
+                this.generateFood();
+
+                // افزایش سرعت
+                if (this.score % 30 === 0 && this.speed > SnakeGame.MIN_SPEED) {
+                    this.speed -= SnakeGame.SPEED_DECREMENT;
+                    this.resetGameLoop();
+                    this.updateDifficultyLabel();
+                }
+
+                // لرزش صفحه (خفیف)
+                this.shakeCanvas();
+            }
+
+            gameOver() {
+                this.gameRunning = false;
+                this.gamePaused = false;
+                this.stats.gamesPlayed++;
+                this.saveStats();
+                
+                clearInterval(this.gameLoop);
+                this.gameLoop = null;
+                
+                // نمایش اوورلی
+                this.overlay.style.display = 'flex';
+                this.overlayText.innerText = '💀 بازی تمام شد';
+                this.statusIcon.innerText = '💀';
+                this.statusMessage.innerText = 'باختید! دوباره تلاش کنید';
+                
+                // افکت لرزش
+                document.querySelector('.canvas-container').classList.add('shake-animation');
+                setTimeout(() => {
+                    document.querySelector('.canvas-container').classList.remove('shake-animation');
+                }, 500);
+                
+                this.draw();
+            }
+
+            // ============== کنترل بازی ==============
+            startGame() {
+                if (this.gameRunning) return;
+                
+                this.gameRunning = true;
+                this.gamePaused = false;
+                this.overlay.style.display = 'none';
+                this.statusIcon.innerText = '▶️';
+                this.statusMessage.innerText = 'در حال بازی...';
+                
+                this.resetGameLoop();
+            }
+
+            pauseGame() {
+                if (!this.gameRunning) return;
+                
+                this.gamePaused = !this.gamePaused;
+                
+                if (this.gamePaused) {
+                    clearInterval(this.gameLoop);
+                    this.gameLoop = null;
+                    this.statusIcon.innerText = '⏸️';
+                    this.statusMessage.innerText = 'مکث';
+                    this.overlay.style.display = 'flex';
+                    this.overlayText.innerText = '⏸️ مکث';
+                } else {
+                    this.resetGameLoop();
+                    this.statusIcon.innerText = '▶️';
+                    this.statusMessage.innerText = 'در حال بازی...';
+                    this.overlay.style.display = 'none';
+                }
+            }
+
+            restartGame() {
+                // ریست کامل
+                this.snake = [{ x: 10, y: 10 }];
+                this.direction = { x: 1, y: 0 };
+                this.nextDirection = { x: 1, y: 0 };
+                this.score = 0;
+                this.speed = SnakeGame.INITIAL_SPEED;
+                this.foodsEaten = 0;
+                
+                this.scoreElement.innerText = '0';
+                this.foodCount.innerText = '🍎 0';
+                
+                this.gameRunning = true;
+                this.gamePaused = false;
+                
+                this.generateFood();
+                
+                clearInterval(this.gameLoop);
+                this.gameLoop = setInterval(() => this.update(), this.speed);
+                
+                this.overlay.style.display = 'none';
+                this.statusIcon.innerText = '▶️';
+                this.statusMessage.innerText = 'در حال بازی...';
+                this.updateDifficultyLabel();
+                
+                this.draw();
+            }
+
+            setDirection(x, y) {
+                if (!this.gameRunning || this.gamePaused) return;
+                
+                // ذخیره به عنوان جهت بعدی
+                this.nextDirection = { x, y };
+            }
+
+            // ============== توابع کمکی ==============
+            resetGameLoop() {
+                if (this.gameLoop) clearInterval(this.gameLoop);
+                if (this.gameRunning && !this.gamePaused) {
+                    this.gameLoop = setInterval(() => this.update(), this.speed);
+                }
+            }
+
+            updateUI() {
+                // آپدیت نوار سرعت
+                const speedPercent = 100 - ((this.speed - SnakeGame.MIN_SPEED) / (SnakeGame.INITIAL_SPEED - SnakeGame.MIN_SPEED) * 100);
+                this.speedFill.style.width = `${Math.min(100, Math.max(20, speedPercent))}%`;
+                
+                // مقدار سرعت
+                this.speedValue.innerText = this.speed;
+            }
+
+            updateDifficultyLabel() {
+                if (this.speed > 100) {
+                    this.difficultyLevel.innerText = 'آسان';
+                } else if (this.speed > 70) {
+                    this.difficultyLevel.innerText = 'عادی';
+                } else {
+                    this.difficultyLevel.innerText = 'سخت';
+                }
+            }
+
+            shakeCanvas() {
+                this.canvas.classList.add('shake-animation');
+                setTimeout(() => {
+                    this.canvas.classList.remove('shake-animation');
+                }, 300);
+            }
+
+            showAchievement(title, value) {
+                this.achievementText.innerText = `${title} ${value}`;
+                this.achievementToast.style.display = 'flex';
+                
+                setTimeout(() => {
+                    this.achievementToast.style.display = 'none';
+                }, 3000);
+            }
+
+            // ============== رویدادها ==============
+            setupEventListeners() {
+                // دکمه‌های کنترلی
+                document.getElementById('btnUp').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.setDirection(0, -1);
+                });
+                
+                document.getElementById('btnDown').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.setDirection(0, 1);
+                });
+                
+                document.getElementById('btnLeft').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.setDirection(-1, 0);
+                });
+                
+                document.getElementById('btnRight').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.setDirection(1, 0);
+                });
+                
+                document.getElementById('btnPause').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.pauseGame();
+                });
+                
+                document.getElementById('btnRestart').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.restartGame();
+                });
+
+                // کنترل با کیبورد
+                window.addEventListener('keydown', (e) => {
+                    if (!this.gameRunning || this.gamePaused) return;
+                    
+                    switch(e.key) {
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            this.setDirection(0, -1);
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            this.setDirection(0, 1);
+                            break;
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            this.setDirection(-1, 0);
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            this.setDirection(1, 0);
+                            break;
+                        case ' ':
+                            e.preventDefault();
+                            this.pauseGame();
+                            break;
+                    }
+                });
+
+                // جلوگیری از اسکرول با تاچ
+                document.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('touchstart', (e) => e.preventDefault());
+                });
+            }
+        }
+
+        // ============== اجرای بازی ==============
+        document.addEventListener('DOMContentLoaded', () => {
+            window.game = new SnakeGame('gameCanvas');
             
-            draw();
-        }
-        
-        function resetInterval(){
-            if(gameLoop) clearInterval(gameLoop);
-            if(running && !paused){
-                gameLoop = setInterval(move, speed);
-            }
-        }
-        
-        function gameOver(){
-            running = false;
-            paused = false;
-            clearInterval(gameLoop);
-            gameLoop = null;
-            statusEl.innerText = '💀 مردی! دکمه شروع رو بزن';
-        }
-        
-        function restart(){
-            snake = [{x:10, y:10}];
-            dir = {x:1, y:0};  // ★★★★★ مهم: جهت اولیه به راست
-            score = 0;
-            speed = 120;
-            scoreEl.innerText = '0';
-            running = true;
-            paused = false;
-            makeFood();
-            clearInterval(gameLoop);
-            gameLoop = setInterval(move, speed);
-            statusEl.innerText = '🎮 داره میره ...';
-            draw();
-        }
-        
-        function pauseGame(){
-            if(!running) return;
-            paused = !paused;
-            if(paused){
-                clearInterval(gameLoop);
-                gameLoop = null;
-                statusEl.innerText = '⏸️ مکث';
-            } else {
-                gameLoop = setInterval(move, speed);
-                statusEl.innerText = '🎮 داره میره ...';
-            }
-        }
-        
-        // کنترل با دکمه
-        document.getElementById('up').addEventListener('click', ()=>{
-            if(!running || paused) return;
-            if(dir.y === 0) dir = {x:0, y:-1};
+            // شروع خودکار با کمی تأخیر
+            setTimeout(() => {
+                if (!window.game.gameRunning) {
+                    window.game.restartGame();
+                }
+            }, 500);
         });
-        document.getElementById('down').addEventListener('click', ()=>{
-            if(!running || paused) return;
-            if(dir.y === 0) dir = {x:0, y:1};
-        });
-        document.getElementById('left').addEventListener('click', ()=>{
-            if(!running || paused) return;
-            if(dir.x === 0) dir = {x:-1, y:0};
-        });
-        document.getElementById('right').addEventListener('click', ()=>{
-            if(!running || paused) return;
-            if(dir.x === 0) dir = {x:1, y:0};
-        });
-        document.getElementById('restart').addEventListener('click', restart);
-        document.getElementById('pause').addEventListener('click', pauseGame);
-        
-        // کنترل با کیبورد
-        window.addEventListener('keydown', (e)=>{
-            if(!running || paused) return;
-            switch(e.key){
-                case 'ArrowUp': e.preventDefault(); if(dir.y===0) dir={x:0,y:-1}; break;
-                case 'ArrowDown': e.preventDefault(); if(dir.y===0) dir={x:0,y:1}; break;
-                case 'ArrowLeft': e.preventDefault(); if(dir.x===0) dir={x:-1,y:0}; break;
-                case 'ArrowRight': e.preventDefault(); if(dir.x===0) dir={x:1,y:0}; break;
-                case ' ': e.preventDefault(); pauseGame(); break;
-            }
-        });
-        
-        document.querySelectorAll('button').forEach(b=>{
-            b.addEventListener('touchstart', e=>e.preventDefault());
-        });
-        
-        // ★★★★★ بازی آماده است، فقط دکمه شروع رو بزن
-        draw();
-        statusEl.innerText = '👆 دکمه شروع رو بزن';
-    })();
-</script>
+    </script>
 </body>
 </html>
